@@ -4,9 +4,9 @@ import jsParser
 
 gui = Tk()
 gui.title('Analizador Sintáctico de Javascript')
-gui.geometry('550x320')
+gui.geometry('545x240')
 
-entry_ = Entry(gui, width=60, borderwidth=2, font=('Consolas',11,'bold'))
+user_input = Text(gui, width=60, height=5, font=('Consolas',11,'bold'))
 lbStart = Label(gui, text="A continuación, ingrese código Javascript:", font=('Helvetica',11,'bold'))
 myLabel = Label(gui)
 lbTokens = Label(gui)
@@ -18,25 +18,26 @@ def myClick():
     myLabel.destroy()
     lbTokens.destroy()
 
-    sql_string = entry_.get()
-    result, query_type = jsParser.evaluate_sql(sql_string)
+    sql_string = user_input.get("1.0","end-1c")
+    result, category = jsParser.evaluate_sql(sql_string)
 
     if result == 1:
-        myLabel = Label(gui, text=f'La sentencia {query_type} es correcta.', font=('Helvetica',12,'bold'), bg="RoyalBlue3", fg="white")
+        myLabel = Label(gui, text=f'La sintaxis {category} es correcta.', font=('Helvetica',12,'bold'), bg="RoyalBlue3", fg="white")
         
         #get tokens
         findTokens = re.findall('\w+|\W', sql_string)
         tokenDict = jsParser.get_tokens(findTokens)
         a = 'Tokens:\n\n'
         a += '\n'.join('{} {}'.format(k, d) for k, d in tokenDict.items())
-        b = a.replace("'", "")
+        a = a.replace("'", "")
         
-        lbTokens = Label(gui, text=b, font=('Helvetica',12,'bold'), justify=LEFT, bg="linen")
-        lbTokens.place(x=30, y=180)
+        gui.geometry('545x370')
+        lbTokens = Label(gui, text=a, font=('Helvetica',12,'bold'), justify=LEFT, bg="linen")
+        lbTokens.place(x=30, y=240)
     else:
         myLabel = Label(gui, text="Sintaxis incorrecta.", font=('Helvetica',12,'bold'), bg="red", fg="white")
     
-    myLabel.place(x=30, y=140)
+    myLabel.place(x=30, y=200)
 
 def on_enter(e):
     btnVerifySql.config(bg='LightBlue', fg='black')
@@ -54,8 +55,8 @@ btnVerifySql.bind('<Enter>', on_enter)
 btnVerifySql.bind('<Leave>', on_leave)
 
 lbStart.place(x=30, y=5)
-entry_.place(x=30, y=35)
-btnVerifySql.place(x=150, y=75)
+user_input.place(x=30, y=35)
+btnVerifySql.place(x=190, y=140)
 
 gui.configure(bg='linen')
 gui.mainloop()
