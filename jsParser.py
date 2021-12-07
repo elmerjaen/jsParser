@@ -47,7 +47,11 @@ def check_string(js_string):
     # La cadena debe terminar en ;
     # Ejemplo: var nombre = elmer;
     
-    statement = r"(var\s|let\s)?(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")"+a+"(\s(\+|\*|-|/)\s(?!"+keywords+")"+a+")*;"
+    #regex para declarar una variable
+    p_declare = re.compile(r"(var|let)\s"+variable+";")
+
+    # regex para asignar un valor a una variable
+    statement = r"((var\s|let\s)?(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")"+a+"(\s(\+|\*|-|/)\s(?!"+keywords+")"+a+")*;\\n?)+"
     p_statement = re.compile(statement)
 
     # regex para condicional if-else
@@ -65,8 +69,9 @@ def check_string(js_string):
                             (\\n\s{4}("""+statement+"""|break;|continue;))+\\n}""", re.X)
 
     patterns = {
+        "declarativa": p_declare,
+        "de asignación": p_statement,
         "condicional": p_condition,
-        "declarativa": p_statement,
         "for": p_for
     }
 
