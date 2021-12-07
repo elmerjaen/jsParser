@@ -2,21 +2,24 @@
 
 import re
 
-keywords = r'''var\b|if\b|else\b|return\b|function\b|continue\b|boolean\b|break\b|case\b'''
+keywords = r'''var\b|let\b|if\b|else\b|for\b|break\b|
+            continue\b|function\b|const\b|boolean\b|case\b'''
 
 def get_tokens(a):
 
     token_list = [x.strip(' |\n') for x in a]
     p_keywords = re.compile(keywords)
-    p_var = re.compile('(\w+)(?<!['+keywords+']|[\d+])')
+    p_var = re.compile('(?!'+keywords+')[a-zA-Z]|_(\w+)*')
     p_numbers = re.compile('\d+')
-    p_special_characters = re.compile('\W')
+    p_operators = re.compile('\+|\*|-|/|=')
+    p_special_characters = re.compile('(?!\+|\*|-|/|=)\W')
 
     t = {}
     tokens = {
         "Palabras reservadas:": p_keywords,
         "Variables:": p_var,
         "Números:": p_numbers,
+        "Operadores matemáticos:": p_operators,
         "Caracteres especiales:": p_special_characters
     }
 
@@ -25,12 +28,13 @@ def get_tokens(a):
             if value.match(i):
                 if key not in t:
                     t[key] = list()
-                t[key].append(i)
+                if i not in t[key]:
+                    t[key].append(i)
     return t
 
 def evaluate_sql(js_string):
 
-    variable = '[a-zA-Z](\w+)*'
+    variable = '([a-zA-Z]|_)(\w+)*'
     a = '([a-zA-Z](\w+)*|\d+)'    
 
     # regex para un statement
@@ -43,7 +47,7 @@ def evaluate_sql(js_string):
     # La cadena debe terminar en ;
     # Ejemplo: var nombre = elmer;
     
-    statement = r"(var\s)*(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")("+variable+"|\d+)(\s(\+|\*|-|/)\s(?!"+keywords+")("+variable+"|\d+))*;"
+    statement = r"(var\s)*(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")"+a+"(\s(\+|\*|-|/)\s(?!"+keywords+")"+a+")*;"
     p_statement = re.compile(statement)
 
     # regex para condicional if-else (más simple)

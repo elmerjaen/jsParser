@@ -18,24 +18,26 @@ def myClick():
     myLabel.destroy()
     lbTokens.destroy()
 
-    sql_string = user_input.get("1.0","end-1c")
-    result, category = jsParser.evaluate_sql(sql_string)
+    js_string = user_input.get("1.0","end-1c")
+    result, category = jsParser.evaluate_sql(js_string)
 
     if result == 1:
         myLabel = Label(gui, text=f'La sintaxis {category} es correcta.', font=('Helvetica',12,'bold'), bg="RoyalBlue3", fg="white")
         
         #get tokens
-        findTokens = re.findall('\w+|\W', sql_string)
+        findTokens = re.findall('\w+|\W', js_string)
         tokenDict = jsParser.get_tokens(findTokens)
         a = 'Tokens:\n\n'
         a += '\n'.join('{} {}'.format(k, d) for k, d in tokenDict.items())
         a = a.replace("'", "")
+        a = a.replace("[", "")
+        a = a.replace("]", "")
         
-        gui.geometry('545x370')
+        gui.geometry('545x390')
         lbTokens = Label(gui, text=a, font=('Helvetica',12,'bold'), justify=LEFT, bg="linen")
         lbTokens.place(x=30, y=240)
     else:
-        myLabel = Label(gui, text="Sintaxis incorrecta.", font=('Helvetica',12,'bold'), bg="red", fg="white")
+        myLabel = Label(gui, text="Error de sintaxis. Revise nuevamente.", font=('Helvetica',12,'bold'), bg="red", fg="white")
     
     myLabel.place(x=30, y=200)
 
