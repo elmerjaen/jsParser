@@ -1,4 +1,4 @@
-# Syntax Parser by Elmer Jaén
+# jsParser by Elmer Jaén
 
 import re
 
@@ -32,13 +32,13 @@ def get_tokens(a):
                     t[key].append(i)
     return t
 
-def evaluate_sql(js_string):
+def check_string(js_string):
 
     variable = '([a-zA-Z]|_)(\w+)*'
     a = '([a-zA-Z](\w+)*|\d+)'    
 
     # regex para un statement
-    # La cadena a evaluar debe empezar por la palabra reservada var,
+    # La cadena a evaluar empieza por la palabra reservada var o let (no obligatorio),
     # seguido de un espacio, seguido de una palabra que no empiece por número
     # y que no sea keyword, seguido de un espacio, seguido del caracter =,
     # (seguido de espacio, seguido de: una letra o palabra que no empiece por número
@@ -47,10 +47,10 @@ def evaluate_sql(js_string):
     # La cadena debe terminar en ;
     # Ejemplo: var nombre = elmer;
     
-    statement = r"(var\s)*(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")"+a+"(\s(\+|\*|-|/)\s(?!"+keywords+")"+a+")*;"
+    statement = r"(var\s|let\s)?(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")"+a+"(\s(\+|\*|-|/)\s(?!"+keywords+")"+a+")*;"
     p_statement = re.compile(statement)
 
-    # regex para condicional if-else (más simple)
+    # regex para condicional if-else
     p_condition = re.compile(r"""if\s\((?!"""+keywords+""")\w+\s
                                 (==|!=|>=?|<=?)\s(?!"""+keywords+""")\w+\){
                                 (\\n\s{4}"""+statement+""")+\\n}
@@ -61,7 +61,7 @@ def evaluate_sql(js_string):
                             (?!"""+keywords+""")"""+a+""";\s
                             (?!"""+keywords+""")"""+variable+"""\s(<=?|>=?)\s
                             (?!"""+keywords+""")"""+a+""";\s
-                            (?!"""+keywords+""")"""+variable+"""(\\+\\+|--)\){
+                            (?!"""+keywords+""")"""+variable+"""(\+\+|--)\){
                             (\\n\s{4}("""+statement+"""|break;|continue;))+\\n}""", re.X)
 
     patterns = {

@@ -19,7 +19,7 @@ def myClick():
     lbTokens.destroy()
 
     js_string = user_input.get("1.0","end-1c")
-    result, category = jsParser.evaluate_sql(js_string)
+    result, category = jsParser.check_string(js_string)
 
     if result == 1:
         myLabel = Label(gui, text=f'La sintaxis {category} es correcta.', font=('Helvetica',12,'bold'), bg="RoyalBlue3", fg="white")
