@@ -52,14 +52,14 @@ def evaluate_sql(js_string):
 
     # regex para condicional if-else (más simple)
     p_condition = re.compile(r"""if\s\((?!"""+keywords+""")\w+\s
-                                (==|!=|>(=)*|<(=)*)\s(?!"""+keywords+""")\w+\){
+                                (==|!=|>=?|<=?)\s(?!"""+keywords+""")\w+\){
                                 (\\n\s{4}"""+statement+""")+\\n}
-                                (\selse\s{(\\n\s{4}"""+statement+""")+\\n})*""", re.X)
+                                (\selse\s{(\\n\s{4}"""+statement+""")+\\n})?""", re.X)
 
     # regex para ciclo for
-    p_for = re.compile(r"""for\s\((var\s)*(?!"""+keywords+""")"""+variable+"""\s=\s
+    p_for = re.compile(r"""for\s\((var\s)?(?!"""+keywords+""")"""+variable+"""\s=\s
                             (?!"""+keywords+""")"""+a+""";\s
-                            (?!"""+keywords+""")"""+variable+"""\s(<(=)*|>(=)*)\s
+                            (?!"""+keywords+""")"""+variable+"""\s(<=?|>=?)\s
                             (?!"""+keywords+""")"""+a+""";\s
                             (?!"""+keywords+""")"""+variable+"""(\\+\\+|--)\){
 
