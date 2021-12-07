@@ -2,12 +2,11 @@
 
 import re
 
-keywords = r'''var\b|function\b|boolean\b|break\b|case\b|
-        catch\b|continue\b|delete\b|do\b|else\b|finally\b|private\b'''
+keywords = r'''var\b|if\b|else\b|return\b|function\b|continue\b|boolean\b|break\b|case\b'''
 
 def get_tokens(a):
 
-    token_list = [x.strip(' ') for x in a]
+    token_list = [x.strip(' |\n') for x in a]
     p_keywords = re.compile(keywords)
     p_var = re.compile('(\w+)(?<!['+keywords+']|[\d+])')
     p_numbers = re.compile('\d+')
@@ -31,11 +30,30 @@ def get_tokens(a):
 
 def evaluate_sql(js_string):
 
-    # expresion regular para la sintaxis var de javascript
-    p_var = re.compile(r"var[\s](?!"+keywords+")[a-zA-Z]\w+\s=\s(?!"+keywords+")[a-zA-Z]\w+")
+    variable = '[a-zA-Z](\w+)*'    
+
+    # regex para un statement
+    # La cadena a evaluar debe empezar por la palabra reservada var,
+    # seguido de un espacio, seguido de una palabra que no empiece por número
+    # y que no sea keyword, seguido de un espacio, seguido del caracter =,
+    # (seguido de espacio, seguido de: una letra o palabra que no empiece por número
+    # y que no sea keyword, o un número).
+    # Lo que está dentro del paréntesis puede aparecer 0 o más veces.
+    # La cadena debe terminar en ;
+    # Ejemplo: var nombre = elmer;
+    
+    statement = r"(var\s)*(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")("+variable+"|\d+)(\s(\+|\*|-|/)\s(?!"+keywords+")("+variable+"|\d+))*;"
+    p_statement = re.compile(statement)
+
+    # expresión regular para condicional if-else (más simple)
+    p_condition = re.compile(r"""if\s\((?!"""+keywords+""")\w+\s
+                                (==|!=|>(=)*|<(=)*)\s(?!"""+keywords+""")\w+\){
+                                (\\n\s{4}"""+statement+""")+\\n}
+                                (\selse\s{(\\n\s{4}"""+statement+""")+\\n})*""", re.X)
 
     patterns = {
-        "var": p_var,
+        "condicional": p_condition,
+        "declarativa": p_statement
     }
 
     for key, value in patterns.items():
