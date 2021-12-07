@@ -30,7 +30,8 @@ def get_tokens(a):
 
 def evaluate_sql(js_string):
 
-    variable = '[a-zA-Z](\w+)*'    
+    variable = '[a-zA-Z](\w+)*'
+    a = '([a-zA-Z](\w+)*|\d+)'    
 
     # regex para un statement
     # La cadena a evaluar debe empezar por la palabra reservada var,
@@ -45,15 +46,25 @@ def evaluate_sql(js_string):
     statement = r"(var\s)*(?!"+keywords+")"+variable+"\s=\s(?!"+keywords+")("+variable+"|\d+)(\s(\+|\*|-|/)\s(?!"+keywords+")("+variable+"|\d+))*;"
     p_statement = re.compile(statement)
 
-    # expresión regular para condicional if-else (más simple)
+    # regex para condicional if-else (más simple)
     p_condition = re.compile(r"""if\s\((?!"""+keywords+""")\w+\s
                                 (==|!=|>(=)*|<(=)*)\s(?!"""+keywords+""")\w+\){
                                 (\\n\s{4}"""+statement+""")+\\n}
                                 (\selse\s{(\\n\s{4}"""+statement+""")+\\n})*""", re.X)
 
+    # regex para ciclo for
+    p_for = re.compile(r"""for\s\((var\s)*(?!"""+keywords+""")"""+variable+"""\s=\s
+                            (?!"""+keywords+""")"""+a+""";\s
+                            (?!"""+keywords+""")"""+variable+"""\s(<(=)*|>(=)*)\s
+                            (?!"""+keywords+""")"""+a+""";\s
+                            (?!"""+keywords+""")"""+variable+"""(\\+\\+|--)\){
+
+                            (\\n\s{4}("""+statement+"""|break;|continue;))+\\n}""", re.X)
+
     patterns = {
         "condicional": p_condition,
-        "declarativa": p_statement
+        "declarativa": p_statement,
+        "for": p_for
     }
 
     for key, value in patterns.items():
