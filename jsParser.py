@@ -1,4 +1,4 @@
-# jsParser by Elmer Jaén
+# jsParser by Elmer Jaén, Louis Aguilar, Omar Flores
 
 import re
 
